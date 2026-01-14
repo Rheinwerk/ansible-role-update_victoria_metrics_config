@@ -1,0 +1,32 @@
+---
+# Tasks adapted from upstream victoriametrics.cluster.vmagent role configure.yml
+
+- name: Configure promscrape config
+  ansible.builtin.template:
+    src: promscrape.yml.j2
+    dest: "{{ vmagent_config_dir }}/config.yml"
+    owner: "{{ vmagent_system_user }}"
+    group: "{{ vmagent_system_group }}"
+    mode: "0644"
+
+- name: Create systemd drop-in directory
+  ansible.builtin.file:
+    path: "{{ vmagent_systemd_dropin_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure remote_write URL via systemd drop-in
+  ansible.builtin.template:
+    src: systemd_remote_write.conf.j2
+    dest: "{{ vmagent_systemd_dropin_dir }}/remote_write.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  register: _vmagent_dropin
+
+- name: Reload systemd # noqa no-handler
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: _vmagent_dropin.changed

@@ -1,0 +1,21 @@
+---
+# Defaults aligned with upstream victoriametrics.cluster.vmagent role
+
+vmagent_system_user: "vic_vm_agent"
+vmagent_system_group: "{{ vmagent_system_user }}"
+
+vmagent_config_dir: "/opt/vic-vmagent"
+
+vmagent_systemd_service_name: "vic-vmagent"
+vmagent_systemd_dropin_dir: "/etc/systemd/system/{{ vmagent_systemd_service_name }}.service.d"
+
+# Default scrape config - scrapes local node_exporter with FQDN as instance label
+# Override this in ASP if you need different scrape targets
+vmagent_scrape_config:
+  scrape_configs:
+    - job_name: node_exporter
+      static_configs:
+        - targets:
+            - "127.0.0.1:9100"
+          labels:
+            instance: "{{ ansible_fqdn }}"

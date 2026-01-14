@@ -1,0 +1,4 @@
+{{ ansible_managed | comment }}
+
+[Service]
+Environment="remoteWrite_url={{ _victoriametrics.remote_write_url }}/api/v1/write"
