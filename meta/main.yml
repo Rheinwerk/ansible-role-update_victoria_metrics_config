@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: rheinwerk
+  role_name: update_victoria_metrics_config
+  description: Configures VictoriaMetrics vmagent remote_write URL and file_sd targets
+  company: Rheinwerk
+  license: license (GPLv3)
+  min_ansible_version: 2.9.0
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - jammy
+  galaxy_tags:
+    - victoriametrics
+    - vmagent
+    - monitoring
+dependencies: []
