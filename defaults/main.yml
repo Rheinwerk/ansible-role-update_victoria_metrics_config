@@ -9,6 +9,15 @@ vmagent_config_dir: "/opt/vic-vmagent"
 vmagent_systemd_service_name: "vic-vmagent"
 vmagent_systemd_dropin_dir: "/etc/systemd/system/{{ vmagent_systemd_service_name }}.service.d"
 
+# Remote write labels - added to all metrics sent via remote write
+# These use CD_ENV variables from /etc/ansible/group_vars/all.yml
+vmagent_remote_write_labels:
+  env: "{{ CD_ENV.iaas.env | default('unknown') }}"
+  account: "{{ CD_ENV.iaas.account | default('unknown') }}"
+  region: "{{ CD_ENV.iaas.region | default('unknown') }}"
+  hostgroup: "{{ CD_ENV.instance.hostgroup | default('unknown') }}"
+  hostname: "{{ ansible_hostname }}"
+
 # Default scrape config - scrapes local node_exporter with FQDN as instance label
 # Override this in ASP if you need different scrape targets
 vmagent_scrape_config:

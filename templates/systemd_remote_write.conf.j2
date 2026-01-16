@@ -2,3 +2,6 @@
 
 [Service]
 Environment="remoteWrite_url={{ _victoriametrics.remote_write_url }}/api/v1/write"
+{% if vmagent_remote_write_labels is defined and vmagent_remote_write_labels %}
+Environment="remoteWrite_label={{ vmagent_remote_write_labels | dict2items | map(attribute='key') | zip(vmagent_remote_write_labels | dict2items | map(attribute='value')) | map('join', '=') | join(',') }}"
+{% endif %}
