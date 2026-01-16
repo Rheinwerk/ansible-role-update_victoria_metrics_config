@@ -1,0 +1,11 @@
+---
+# Install vmagent before running the role
+- name: Install vmagent using upstream role
+  ansible.builtin.include_role:
+    name: victoriametrics.cluster.vmagent
+  vars:
+    vmagent_service_args:
+      "envflag.enable": "true"
+      "promscrape.config": "/opt/vic-vmagent/config.yml"
+      "remoteWrite.tmpDataPath": "/tmp/vmagent"
+  when: "'molecule-idempotence-notest' not in ansible_skip_tags"
