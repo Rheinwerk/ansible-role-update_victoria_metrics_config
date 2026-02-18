@@ -2,6 +2,10 @@
 
 [Service]
 Environment="remoteWrite_url={{ _victoriametrics.remote_write_url }}/api/v1/write"
+{% if _victoriametrics.basic_auth is defined and _victoriametrics.basic_auth.username is defined %}
+Environment="remoteWrite_basicAuth_username={{ _victoriametrics.basic_auth.username }}"
+Environment="remoteWrite_basicAuth_password={{ _victoriametrics.basic_auth.password }}"
+{% endif %}
 {% if vmagent_remote_write_labels is defined and vmagent_remote_write_labels %}
 Environment="remoteWrite_label={{ vmagent_remote_write_labels | dict2items | map(attribute='key') | zip(vmagent_remote_write_labels | dict2items | map(attribute='value')) | map('join', '=') | join(',') }}"
 {% endif %}
