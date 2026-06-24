@@ -26,6 +26,14 @@
     mode: "0644"
   register: _vmagent_dropin
 
+- name: Create emit_vm configuration file
+  ansible.builtin.template:
+    src: emit_vm.conf.j2
+    dest: /etc/emit_vm.conf
+    owner: root
+    group: root
+    mode: "0640"
+
 - name: Reload systemd # noqa no-handler
   ansible.builtin.systemd:
     daemon_reload: true

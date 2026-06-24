@@ -1,0 +1,9 @@
+{{ ansible_managed | comment }}
+{% set _base = _victoriametrics.remote_write_url %}
+{% if _victoriametrics.basic_auth is defined and _victoriametrics.basic_auth.username is defined %}
+{% set _scheme = _base.split('://')[0] %}
+{% set _host = _base.split('://')[1] %}
+url: {{ _scheme }}://{{ _victoriametrics.basic_auth.username }}:{{ _victoriametrics.basic_auth.password }}@{{ _host }}
+{% else %}
+url: {{ _base }}
+{% endif %}
