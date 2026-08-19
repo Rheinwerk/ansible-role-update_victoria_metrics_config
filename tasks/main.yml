@@ -32,7 +32,7 @@
     dest: /etc/emit_vm.conf
     owner: root
     group: root
-    mode: "0640"
+    mode: "0644"
 
 - name: Reload systemd # noqa no-handler
   ansible.builtin.systemd:
