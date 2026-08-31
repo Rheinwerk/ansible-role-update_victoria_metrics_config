@@ -1,0 +1,15 @@
+{{ ansible_managed | comment }}
+server:
+  listen: "{{ x509_certificate_exporter_listen_address }}"
+sources:
+  - kind: file
+    name: host-pki
+    refreshInterval: {{ x509_certificate_exporter_refresh_interval }}
+    paths:
+{% set _cert_globs = lookup('file', x509_certificate_exporter_cert_glob_file, errors='ignore') | default('', true) %}
+{% for _line in _cert_globs.splitlines() %}
+{% set _glob = _line.strip() %}
+{% if _glob and not _glob.startswith('#') and not _glob.endswith('.properties') %}
+      - "{{ _glob }}"
+{% endif %}
+{% endfor %}

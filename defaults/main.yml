@@ -28,3 +28,20 @@ vmagent_scrape_config:
             - "127.0.0.1:9100"
           labels:
             instance: "{{ ansible_fqdn }}"
+
+# x509-certificate-exporter (cert-expiry metrics). The exporter
+# binary/systemd unit are expected to already be installed (disabled) by
+# the baseimage -- this role only (re)renders its config and starts it,
+# once /etc/cert_exp_time_globs has its final per-service content.
+x509_certificate_exporter_system_user: "x509_certificate_exporter"
+x509_certificate_exporter_system_group: "{{ x509_certificate_exporter_system_user }}"
+x509_certificate_exporter_service_name: "x509-certificate-exporter"
+x509_certificate_exporter_config_dir: "/etc/x509-certificate-exporter"
+x509_certificate_exporter_listen_address: "127.0.0.1:9793"
+x509_certificate_exporter_refresh_interval: "1h"
+
+# Glob patterns (one per line, '#'-comments and blank lines ignored) of
+# cert files to watch. '*.properties' entries are skipped -- those wrap
+# a PKCS#12 path + passphrase (e.g. APNS certs) which this exporter can't
+# parse directly from a Java properties file.
+x509_certificate_exporter_cert_glob_file: "/etc/cert_exp_time_globs"

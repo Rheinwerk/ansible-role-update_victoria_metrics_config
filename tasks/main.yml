@@ -38,3 +38,26 @@
   ansible.builtin.systemd:
     daemon_reload: true
   when: _vmagent_dropin.changed
+
+- name: Create x509-certificate-exporter config directory
+  ansible.builtin.file:
+    path: "{{ x509_certificate_exporter_config_dir }}"
+    state: directory
+    owner: "{{ x509_certificate_exporter_system_user }}"
+    group: "{{ x509_certificate_exporter_system_group }}"
+    mode: "0755"
+
+- name: Configure x509-certificate-exporter (cert-expiry metrics)
+  ansible.builtin.template:
+    src: x509-certificate-exporter.yaml.j2
+    dest: "{{ x509_certificate_exporter_config_dir }}/config.yaml"
+    owner: "{{ x509_certificate_exporter_system_user }}"
+    group: "{{ x509_certificate_exporter_system_group }}"
+    mode: "0644"
+  register: _x509_exporter_config
+
+- name: Enable and (re)start x509-certificate-exporter # noqa no-handler
+  ansible.builtin.systemd:
+    name: "{{ x509_certificate_exporter_service_name }}"
+    enabled: true
+    state: "{{ 'restarted' if _x509_exporter_config.changed else 'started' }}"

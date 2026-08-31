@@ -9,3 +9,55 @@
       "promscrape.config": "/opt/vic-vmagent/config.yml"
       "remoteWrite.tmpDataPath": "/tmp/vmagent"
   when: "'molecule-idempotence-notest' not in ansible_skip_tags"
+
+# Stand in for the real x509-certificate-exporter install (normally done,
+# disabled, by the baseimage) -- just enough for the role's config-render
+# and systemd tasks to have something real to act on.
+- name: Create x509-certificate-exporter system group
+  ansible.builtin.group:
+    name: x509_certificate_exporter
+    system: true
+
+- name: Create x509-certificate-exporter system user
+  ansible.builtin.user:
+    name: x509_certificate_exporter
+    group: x509_certificate_exporter
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Install a stand-in x509-certificate-exporter binary
+  ansible.builtin.copy:
+    dest: /usr/local/bin/x509-certificate-exporter
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      exec sleep infinity
+
+- name: Install a stand-in x509-certificate-exporter systemd unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/x509-certificate-exporter.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=X.509 certificate exporter (molecule stand-in)
+
+      [Service]
+      Type=simple
+      User=x509_certificate_exporter
+      Group=x509_certificate_exporter
+      ExecStart=/usr/local/bin/x509-certificate-exporter --config /etc/x509-certificate-exporter/config.yaml
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Reload systemd for the stand-in unit
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Seed a minimal cert glob file
+  ansible.builtin.copy:
+    dest: /etc/cert_exp_time_globs
+    mode: "0644"
+    content: |
+      /etc/ssl/certs/*.pem

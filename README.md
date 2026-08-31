@@ -6,10 +6,16 @@ This role handles ASP-time configuration:
 
 - Generates promscrape config (configurable via `vmagent_scrape_config`)
 - Sets remote_write URL via systemd drop-in environment variable
+- Renders x509-certificate-exporter's config from a cert-glob file and
+  (re)starts it, once that file has its final per-service content
 
 ## Requirements
 
 The vmagent service must be installed with `-envflag.enable=true` so it reads the remote_write URL from environment variables. This is typically configured in the baseimage using the upstream vmagent role.
+
+x509-certificate-exporter (binary, system user/group, systemd unit) is
+expected to already be installed -- disabled -- by the baseimage; see
+`x509_certificate_exporter_*` variables below.
 
 ## Usage
 
@@ -51,6 +57,15 @@ vmagent_scrape_config:
             - "127.0.0.1:9100"
           labels:
             instance: "{{ ansible_fqdn }}"
+
+# x509-certificate-exporter
+x509_certificate_exporter_system_user: "x509_certificate_exporter"
+x509_certificate_exporter_system_group: "{{ x509_certificate_exporter_system_user }}"
+x509_certificate_exporter_service_name: "x509-certificate-exporter"
+x509_certificate_exporter_config_dir: "/etc/x509-certificate-exporter"
+x509_certificate_exporter_listen_address: "127.0.0.1:9793"
+x509_certificate_exporter_refresh_interval: "1h"
+x509_certificate_exporter_cert_glob_file: "/etc/cert_exp_time_globs"
 ```
 
 ## What it does
@@ -58,7 +73,15 @@ vmagent_scrape_config:
 1. Generates promscrape config from `vmagent_scrape_config`
 2. Creates systemd drop-in with `remoteWrite_url` environment variable
 3. Reloads systemd daemon
+4. Renders `x509_certificate_exporter_config_dir`/config.yaml from a `kind:
+   file` source whose `paths` list is read from
+   `x509_certificate_exporter_cert_glob_file` (one glob pattern per line,
+   `#`-comments and blank lines ignored). Lines ending in `.properties`
+   are skipped -- those wrap a PKCS#12 path + passphrase (e.g. APNS certs)
+   that this exporter can't parse directly from a Java properties file.
+5. Enables and (re)starts x509-certificate-exporter when that config changes
 
 ## Dependencies
 
-None. Assumes vmagent is already installed by the baseimage.
+None. Assumes vmagent and x509-certificate-exporter are already installed
+by the baseimage.
