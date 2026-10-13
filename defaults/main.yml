@@ -16,7 +16,7 @@ vmagent_remote_write_labels:
   account: "{{ CD_ENV.iaas.account | default('unknown') }}"
   region: "{{ CD_ENV.iaas.region | default('unknown') }}"
   hostgroup: "{{ CD_ENV.instance.hostgroup | default('unknown') }}"
-  hostname: "{{ ansible_hostname }}"
+  hostname: "{{ ansible_facts['hostname'] }}"
 
 # Default scrape config - scrapes local node_exporter with FQDN as instance label
 # Override this in ASP if you need different scrape targets
@@ -27,4 +27,4 @@ vmagent_scrape_config:
         - targets:
             - "127.0.0.1:9100"
           labels:
-            instance: "{{ ansible_fqdn }}"
+            instance: "{{ ansible_facts['fqdn'] }}"

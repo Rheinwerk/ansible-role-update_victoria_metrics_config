@@ -50,7 +50,7 @@ vmagent_scrape_config:
         - targets:
             - "127.0.0.1:9100"
           labels:
-            instance: "{{ ansible_fqdn }}"
+            instance: "{{ ansible_facts['fqdn'] }}"
 ```
 
 ## What it does
